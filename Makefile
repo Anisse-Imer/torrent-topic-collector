@@ -12,3 +12,7 @@ run-scaled:
 	make down && docker-compose up --scale spark-worker=3
 submit:
 	docker exec da-spark-master spark-submit --master spark://spark-master:7077 --deploy-mode client ./apps/$(app)
+
+kafka-test:
+	(python3 kafka_apps/consumer.py &) && python3 kafka_apps/producer.py
+	
