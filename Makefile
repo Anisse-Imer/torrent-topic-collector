@@ -1,11 +1,11 @@
-x.PHONY: build-worker launch-workers stop-workers down
+x.PHONY: build-workers launch-workers stop-workers down
 
 build:
 	docker-compose build
 build-nc:
 	docker-compose build --no-cache
 
-build-worker:
+build-workers:
 	docker build -f ./workers/Dockerfile -t worker-magnet ./workers
 launch-workers:
 	python3 ./workers/build_workers.py
@@ -15,8 +15,10 @@ stop-workers:
 down: stop-workers
 	docker-compose down --volumes
 
-run: down build-worker launch-workers
+run: down build-workers
 	docker-compose up -d
+	make launch-workers
+
 run-scaled:
 	make down && docker-compose up --scale spark-worker=3
 submit:

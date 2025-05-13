@@ -17,6 +17,9 @@ services:
     ports:
       - '9090:8080'
       - '7077:7077'
+    networks:
+      - data_lakehouse_net
+
   spark-history-server:
     container_name: da-spark-history
     image: da-spark-image
@@ -30,6 +33,9 @@ services:
       - spark-logs:/opt/spark/spark-events
     ports:
       - '18080:18080'
+    networks:
+      - data_lakehouse_net
+
   spark-worker:
     image: da-spark-image
     entrypoint: ['/opt/spark/apps/entrypoint.sh', 'worker']
@@ -40,6 +46,9 @@ services:
     volumes:
       - ./spark_apps:/opt/spark/apps
       - spark-logs:/opt/spark/spark-events
+    networks:
+      - data_lakehouse_net
+
   kafka:
     image: bitnami/kafka:3.6
     container_name: kafka
@@ -56,9 +65,13 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     volumes:
       - kafka_data:/bitnami/kafka
+    networks:
+      - data_lakehouse_net
 
 networks:
-  default:
+  data_lakehouse_net:
+    name: data_lakehouse_net
+    driver: bridge
 
 volumes:
   spark-logs:

@@ -2,13 +2,14 @@ import os
 import time
 import logging
 import sys
+from kafka import KafkaProducer
+from kafka.errors import NoBrokersAvailable
 
 worker_id = os.getenv("WORKER_ID", "default")
 
 # Configure logging to stdout with proper formatting
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - Worker %(worker_id)s - %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 
@@ -16,7 +17,38 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger = logging.LoggerAdapter(logger, {"worker_id": worker_id})
 
-# Worker loop
+# Kafka connection details
+bootstrap_servers = '172.20.0.2:9092'  # Kafka broker IP address
+topic = 'magnets'
+
+# Retry logic for Kafka connection
+retries = 5
+delay = 1  # Start with 1 second
+
+while retries > 0:
+    try:
+        # Try to create the Kafka producer
+        producer = KafkaProducer(
+            bootstrap_servers=[bootstrap_servers],
+            value_serializer=lambda x: x.encode('utf-8')
+        )
+        logger.info("Connected to Kafka successfully")
+        break  # Exit the loop if connection is successful
+    except NoBrokersAvailable:
+        logger.error(f"No brokers available, retrying in {delay} seconds...")
+        time.sleep(delay)
+        retries -= 1
+        delay *= 2  # Exponential backoff: double the delay each time
+
+if retries == 0:
+    logger.error("Failed to connect to Kafka after several attempts")
+    exit(1)
+
+# Worker loop - sending messages to Kafka
+count = 1
 while True:
-    logger.info("Doing work...")
+    message = f"Message {count}"
+    producer.send(topic, value=message)
+    logger.info(f"Sent: {message}")
+    count += 1
     time.sleep(2)
