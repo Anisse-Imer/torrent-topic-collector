@@ -1,3 +1,4 @@
+from kafka import KafkaConsumer
 from pyspark.sql import SparkSession
 
 spark = SparkSession.builder.appName("BasicTest").getOrCreate()

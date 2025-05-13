@@ -3,6 +3,7 @@
 SPARK_WORKLOAD=$1
 
 echo "SPARK_WORKLOAD: $SPARK_WORKLOAD"
+pip install -r /opt/spark/apps/requirements.txt
 
 if [ "$SPARK_WORKLOAD" == "master" ];
 then
