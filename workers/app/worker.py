@@ -7,6 +7,8 @@ from kafka.errors import NoBrokersAvailable
 
 from dotenv import load_dotenv
 
+from includes.singleton_torrent import singletonTorrent
+
 # Load .env variables
 load_dotenv()
 worker_id = os.getenv("WORKER_ID", "default")
@@ -23,7 +25,6 @@ logging.basicConfig(
 # Use LoggerAdapter to add worker_id to log records
 logger = logging.getLogger(__name__)
 logger = logging.LoggerAdapter(logger, {"worker_id": worker_id})
-
 
 # Retry logic for Kafka connection
 retries = 5
@@ -49,10 +50,17 @@ if retries == 0:
     exit(1)
 
 # Worker loop - sending messages to Kafka
-count = 1
+magnets_sent:list[str] = []
+_instance:singletonTorrent = singletonTorrent()
+
 while True:
-    message = f"Message {count}"
-    producer.send(topic, value=message)
-    logger.info(f"Sent: {message}")
-    count += 1
-    time.sleep(2)
+    try:
+        for magnet in _instance.search(query=worker_id, retries=30):
+            if magnet in magnets_sent:
+                pass
+            else:
+                producer.send(topic, value=magnet)
+                logger.info(f"Sent: {magnet}")
+                magnets_sent.append(magnet)
+    except Exception as e:
+        logger.error(e)

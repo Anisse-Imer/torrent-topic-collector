@@ -6,7 +6,7 @@ build-nc:
 	docker-compose build --no-cache
 
 build-workers:
-	docker build -f ./workers/Dockerfile -t worker-magnet ./workers
+	docker build -f ./workers/app/Dockerfile -t worker-magnet ./workers/app
 launch-workers:
 	python3 ./workers/build_workers.py
 stop-workers:
