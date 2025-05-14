@@ -5,7 +5,14 @@ import sys
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
 
+from dotenv import load_dotenv
+
+# Load .env variables
+load_dotenv()
 worker_id = os.getenv("WORKER_ID", "default")
+# Kafka connection details
+bootstrap_servers:str = os.getenv("BOOTSTRAP_SERVER", "default")
+topic:str = os.getenv("KAFKA_TOPIC", "default")
 
 # Configure logging to stdout with proper formatting
 logging.basicConfig(
@@ -17,9 +24,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger = logging.LoggerAdapter(logger, {"worker_id": worker_id})
 
-# Kafka connection details
-bootstrap_servers = '172.20.0.2:9092'  # Kafka broker IP address
-topic = 'magnets'
 
 # Retry logic for Kafka connection
 retries = 5

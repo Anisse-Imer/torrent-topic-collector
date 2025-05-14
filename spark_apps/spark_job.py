@@ -1,5 +1,13 @@
+from dotenv import load_dotenv
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
+
+# Load .env variables
+load_dotenv()
+# Kafka connection details
+bootstrap_servers:str = os.getenv("BOOTSTRAP_SERVER", "default")
+topic:str = os.getenv("KAFKA_TOPIC", "default")
 
 # Create a SparkSession
 spark = SparkSession.builder \
@@ -11,8 +19,8 @@ spark = SparkSession.builder \
 df = spark \
   .readStream \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka:9092") \
-  .option("subscribe", "magnets") \
+  .option("kafka.bootstrap.servers", bootstrap_servers) \
+  .option("subscribe", topic) \
   .load()
 
 # Select the value from the Kafka message and cast it to a string
