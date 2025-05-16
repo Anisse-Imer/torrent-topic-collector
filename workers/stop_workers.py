@@ -11,8 +11,8 @@ worker_ids = os.getenv("WORKER_IDS", "").split(",")
 # Function to stop the workers by name
 def stop_containers():
     print("Stopping workers...")
-    for wid in worker_ids:
-        container_name = f"worker_{wid}"
+    for idx, wid in enumerate(worker_ids):
+        container_name = f"worker_{idx}"
         print(f"Stopping container {container_name}...")
         subprocess.run(["docker", "stop", container_name])
 
