@@ -19,6 +19,8 @@ run: down build-workers
 	docker-compose up -d
 	make launch-workers
 
+run-submit: run submit app=$(app)
+
 run-scaled: down build-workers
 	docker-compose up --scale spark-worker=$(workers) -d
 	make launch-workers
@@ -34,4 +36,4 @@ kafka-test:
 	(python3 kafka_apps/consumer.py &) && python3 kafka_apps/producer.py
 
 view:
-	docker compose logs -f		
+	docker compose logs -f

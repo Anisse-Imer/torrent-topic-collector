@@ -18,6 +18,7 @@ df = spark \
     .format("kafka") \
     .option("kafka.bootstrap.servers", bootstrap_servers) \
     .option("subscribe", topic) \
+    .option("startingOffsets", "earliest") \
     .load()
 
 # Process each batch and print the topic

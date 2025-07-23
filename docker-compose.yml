@@ -37,6 +37,7 @@ services:
       - data_lakehouse_net
 
   spark-worker:
+    # container_name: spark-worker
     image: da-spark-image
     entrypoint: ['/opt/spark/apps/entrypoint.sh', 'worker']
     depends_on:
