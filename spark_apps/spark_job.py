@@ -1,37 +1,36 @@
 import os
-from dotenv import load_dotenv
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
 
-# Load .env variables
-load_dotenv()
-# Kafka connection details
-bootstrap_servers:str = os.getenv("BOOTSTRAP_SERVER", "default")
-topic:str = os.getenv("KAFKA_TOPIC", "default")
+bootstrap_servers: str = os.getenv("BOOTSTRAP_SERVER", "default")
+topic: str = os.getenv("KAFKA_TOPIC", "default")
 
-# Create a SparkSession
+# Create SparkSession
 spark = SparkSession.builder \
     .appName("KafkaSparkStreaming") \
     .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1') \
     .getOrCreate()
 
-# Define the Kafka source
+# Define Kafka source
 df = spark \
-  .readStream \
-  .format("kafka") \
-  .option("kafka.bootstrap.servers", bootstrap_servers) \
-  .option("subscribe", topic) \
-  .load()
+    .readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", bootstrap_servers) \
+    .option("subscribe", topic) \
+    .option("startingOffsets", "earliest") \
+    .load()
 
-# Select the value from the Kafka message and cast it to a string
-value_df = df.select(col("value").cast("string").alias("message"))
+# Process each batch and print the topic
+def process_batch(batch_df, batch_id):
+    print(f"Processing batch {batch_id} from topic: {topic}")  # Continuously prints
+    batch_df.select(col("value").cast("string").alias("message")).show(truncate=False)
 
-# Write the stream to the console
-query = value_df \
+# Write stream with foreachBatch
+query = df \
     .writeStream \
-    .outputMode("append") \
-    .format("console") \
+    .foreachBatch(process_batch) \
+    .outputMode("update") \
     .start()
 
 query.awaitTermination()

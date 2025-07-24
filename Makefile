@@ -1,4 +1,4 @@
-x.PHONY: build-workers launch-workers stop-workers down
+x.PHONY: build-workers launch-workers stop-workers down run restart
 
 build:
 	docker-compose build
@@ -14,13 +14,17 @@ stop-workers:
 
 down: stop-workers
 	docker-compose down --volumes
-
 run: down build-workers
 	docker-compose up -d
 	make launch-workers
+restart: down run
 
-run-scaled:
-	make down && docker-compose up --scale spark-worker=3
+run-submit: run submit app=$(app)
+
+run-scaled: down build-workers
+	docker-compose up --scale spark-worker=$(workers) -d
+	make launch-workers
+
 submit:
 	docker exec da-spark-master spark-submit \
 	--master spark://spark-master:7077 \
@@ -30,3 +34,6 @@ submit:
 
 kafka-test:
 	(python3 kafka_apps/consumer.py &) && python3 kafka_apps/producer.py
+
+view:
+	docker compose logs -f

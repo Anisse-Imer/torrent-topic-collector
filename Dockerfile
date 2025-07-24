@@ -27,6 +27,7 @@ RUN curl -fsSL https://archive.apache.org/dist/spark/spark-3.3.1/spark-3.3.1-bin
     && rm -rf spark-3.3.1-bin-hadoop3.tgz
 
 COPY ./spark_apps/requirements.txt .
+COPY ./spark_apps/.env .
 RUN pip3 install -r requirements.txt
 
 ENV PATH="/opt/spark/sbin:/opt/spark/bin:${PATH}"

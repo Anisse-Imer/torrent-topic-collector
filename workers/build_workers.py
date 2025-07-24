@@ -14,7 +14,7 @@ logger = logging.getLogger()
 
 containers = []
 for idx, wid in enumerate(worker_ids):
-    container_name = f"worker_{wid}"
+    container_name = f"worker_{idx}"
     port = 5000 + idx
     
     logger.info(f"Starting worker {wid}...")

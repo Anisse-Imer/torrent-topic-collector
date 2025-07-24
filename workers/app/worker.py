@@ -55,7 +55,7 @@ _instance:singletonTorrent = singletonTorrent()
 
 while True:
     try:
-        for magnet in _instance.search(query=worker_id, retries=30):
+        for magnet in _instance.search(query=worker_id, retries=100):
             if magnet in magnets_sent:
                 pass
             else:

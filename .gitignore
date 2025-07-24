@@ -1,0 +1,7 @@
+# Python cache - security
+*.pyc
+
+# HDDFS VOLUMES - the folders must exist though
+hadoop_cluster/datanode1/*
+hadoop_cluster/datanode2/*
+hadoop_cluster/namenode/*
