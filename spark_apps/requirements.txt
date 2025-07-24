@@ -2,5 +2,11 @@ ipython
 pandas
 pyarrow
 numpy
+
+free-proxy
+libtorrent
+
 pyspark
 kafka-python
+hdfs
+hdfs3

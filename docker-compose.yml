@@ -19,7 +19,7 @@ services:
       - '7077:7077'
     networks:
       - data_lakehouse_net
-
+  
   spark-history-server:
     container_name: da-spark-history
     image: da-spark-image
@@ -35,7 +35,7 @@ services:
       - '18080:18080'
     networks:
       - data_lakehouse_net
-
+  
   spark-worker:
     # container_name: spark-worker
     image: da-spark-image
@@ -49,7 +49,7 @@ services:
       - spark-logs:/opt/spark/spark-events
     networks:
       - data_lakehouse_net
-
+  
   kafka:
     image: bitnami/kafka:3.6
     container_name: kafka
@@ -68,6 +68,66 @@ services:
       - kafka_data:/bitnami/kafka
     networks:
       - data_lakehouse_net
+  
+  hdfs-namenode:
+    image: apache/hadoop:3.4.1
+    container_name: hdfs-namenode
+    hostname: namenode
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+    volumes:
+      - ./hadoop_cluster/namenode:/opt/hadoop/data/nameNode
+      - ./hadoop_cluster/config:/opt/hadoop/etc/hadoop
+      - ./hadoop_cluster/start-hdfs.sh:/start-hdfs.sh
+      - ./hadoop_cluster/config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
+    ports:
+      - "9870:9870"
+    command: [ "/bin/bash", "/start-hdfs.sh" ]
+    restart: always
+    networks:
+      data_lakehouse_net:
+
+  hdfs-datanode1:
+    image: apache/hadoop:3.4.1
+    container_name: hdfs-datanode1
+    hostname: datanode1
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+    volumes:
+      - ./hadoop_cluster/datanode1:/opt/hadoop/data/dataNode
+      - ./hadoop_cluster/config:/opt/hadoop/etc/hadoop
+      - ./hadoop_cluster/init-datanode.sh:/init-datanode.sh
+      - ./hadoop_cluster/config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
+    depends_on:
+      - hdfs-namenode
+    command: [ "/bin/bash", "/init-datanode.sh" ]
+    restart: always
+    networks:
+      data_lakehouse_net:
+  
+  hdfs-datanode2:
+    image: apache/hadoop:3.4.1
+    container_name: hdfs-datanode2
+    hostname: datanode2
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+      - HADOOP_CONF_DIR=/opt/hadoop/etc/hadoop
+    volumes:
+      - ./hadoop_cluster/datanode2:/opt/hadoop/data/dataNode
+      - ./hadoop_cluster/config:/opt/hadoop/etc/hadoop
+      - ./hadoop_cluster/init-datanode.sh:/init-datanode.sh
+      - ./hadoop_cluster/config/log4j.properties:/opt/hadoop/etc/hadoop/log4j.properties
+    depends_on:
+      - hdfs-namenode
+    command: [ "/bin/bash", "/init-datanode.sh" ]
+    restart: always
+    networks:
+      data_lakehouse_net:
 
 networks:
   data_lakehouse_net:

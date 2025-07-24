@@ -1,4 +1,4 @@
-x.PHONY: build-workers launch-workers stop-workers down
+x.PHONY: build-workers launch-workers stop-workers down run restart
 
 build:
 	docker-compose build
@@ -14,10 +14,10 @@ stop-workers:
 
 down: stop-workers
 	docker-compose down --volumes
-
 run: down build-workers
 	docker-compose up -d
 	make launch-workers
+restart: down run
 
 run-submit: run submit app=$(app)
 
